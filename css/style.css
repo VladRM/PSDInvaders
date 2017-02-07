@@ -1,0 +1,64 @@
+@font-face {
+    font-family: AlienGrad;
+    src: url(../font/alienleagueiigradbold.ttf);
+}
+@font-face {
+    font-family: Alien;
+    src: url(../font/alienleagueiibold.ttf);
+}
+
+body {
+  background-image: url("../img/stars_bg.jpg");
+}
+
+#game-container {
+    /*margin-top: 3em;*/
+}
+
+#game-container canvas {
+  margin: 0 auto;
+  border: 1em #333 solid;
+}
+
+.info {
+    text-align: center;
+}
+.info p {
+    width: 900px;
+    margin: .3em auto;
+    padding: .1em .9em;
+    color: #E6E6E6;
+    background-color: #333;
+    font: 1.2em Alien;
+}
+.info a {
+    color: #FFF;
+    font-weight: bold;
+}
+
+.hidden {
+	display: none;
+}
+
+#mobile-version.info p {
+	width: 80%;
+}
+#mobile-version img {
+	width: 90%;
+	text-align: center;
+}
+
+h1 {
+    text-align: center;
+    padding: .2em 0;
+    color: #EEE;
+    background-color: #333;
+    font: 2.4em AlienGrad;
+    margin: .4em 0;
+}
+
+div.fb-like {
+    text-align: center;
+    margin: auto;
+    display: block;
+}
