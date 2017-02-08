@@ -4,13 +4,11 @@ window.mobileAndTabletcheck = function() {
   return check;
 };
 if (window.mobileAndTabletcheck()) {
-	console.log("mobile");
 	$("#game-container").hide();
 	$("#help").hide();
 	$("#mobile-version").show();
 }
 
 $(document).ready(function() {
-    console.log("ready!");
 	$("#easy-mode").click(function() {easyMode();});
 });

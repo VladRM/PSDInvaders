@@ -26,27 +26,29 @@ function preload() {
     game.load.image('background', 'img/background2.png');
     game.load.image('bossPsd', 'img/6_1_personaj_joc_64px.png');
     game.load.spritesheet('dragneaBoss', 'img/dragneaBoss.png', 182, 182);
-    
 }
 
 var player;
 var aliens;
 var bossesPsd;
+var lives;
+var bombs;
 var bosstimer;
 var bulletTime = 0;
+
 var cursors;
 var fireButton;
+var restartButton;
+var bombButton;
+
 var explosions;
 var starfield;
-var lives;
 var stateText;
 var livingEnemies = [];
 var maxDescent = 100; // distance from the bottom
 var gameOver = false;
 var phase2 = false;
 
-var bombs;
-var bombButton;
 
 var bullets = {    
     getBulletGroup: function (groupSize, imageResource) {
@@ -60,7 +62,9 @@ var bullets = {
         b.setAll('checkWorldBounds', true);
 
         return b;
-    }
+    },
+	
+	initialized: false
 };
 
 function initBullets() {
@@ -68,7 +72,21 @@ function initBullets() {
     bullets.thief = bullets.getBulletGroup(30, 'bulletDot');
     bullets.psd = bullets.getBulletGroup(15, 'bulletRed');
     bullets.dragnea = bullets.getBulletGroup(15, 'bulletMissle');
-    bullets.bombs = bullets.getBulletGroup(20, 'dnaBomb');
+    
+	bullets.bombs = bullets.getBulletGroup(20, 'dnaBomb');
+    bullets.bombs.interval = 2000;
+    bullets.bombs.readyTime = 0;
+    bullets.bombs.active = false;
+	
+	bullets.initialized = true;
+}
+
+function resetBullets() {
+    bullets.player.removeAll();
+    bullets.thief.removeAll();
+    bullets.psd.removeAll();
+    bullets.dragnea.removeAll();
+    bullets.bombs.removeAll();
 }
 
 var score = {
@@ -184,8 +202,6 @@ function create() {
     //  The scrolling starfield background
     starfield = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'starfield');
 
-    initBullets();
-
     dragneaBoss = game.add.sprite(0, 0, 'dragneaBoss');
     dragneaBoss.exists = false;
     dragneaBoss.anchor.setTo(0.5, 0.5);
@@ -194,9 +210,11 @@ function create() {
     dragneaBoss.fireInterval = 2700;
     dragneaBoss.nextShot = game.time.now + dragneaBoss.fireInterval;
     game.physics.enable(dragneaBoss, Phaser.Physics.ARCADE);
-
-    createHero();
+	
+    initBullets();
     createDnaBombs();
+	
+    createHero();
 
     //  The baddies!
     aliens = game.add.group();
@@ -234,7 +252,8 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     bombButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
-    
+    restartButton = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+	
     start();
 }
 
@@ -271,11 +290,6 @@ function createDnaBombs() {
         bomb.scale.x = .6;
         bomb.scale.y = .6;
     }
-    
-    // Init acutal bombs group data 
-    bullets.bombs.interval = 2000;
-    bullets.bombs.readyTime = 0;
-    bullets.bombs.active = false;
 }
 
 function triggerDnaBombs() {
@@ -365,13 +379,17 @@ function descend() {
 function update() {
     //  Scroll the background
     starfield.tilePosition.y += 2;
+	
+	if (gameOver && restartButton.isDown) {
+		restart();
+	}
     
     if (player.alive) {
         //  Reset the player, then check for movement keys
         player.body.velocity.setTo(0, 0);
         
         if (isPlayerOutOfBounds()) {
-			gameOverLoss("Drag_ne-a fost de tine. Nu iesi din peisaj\ncand lucrurile devin grele.\n\nClick pentru un joc nou");
+			gameOverLoss("Drag_ne-a fost de tine. Nu iesi din peisaj\ncand lucrurile devin grele.\n\nClick sau ENTER pentru un joc nou");
 			ga('send', {
 			  hitType: 'event',
 			  eventCategory: 'Game',
@@ -434,7 +452,7 @@ function update() {
 
         var enemyGroup = phase2 ? bossesPsd : aliens;
         if (gameHeight - enemyGroup.position.y - enemyGroup.height <= maxDescent) {
-            gameOverLoss("Coruptia ucide!\nMai incearca o data si salveaza Romania!\n\nClick pentru un joc nou");
+            gameOverLoss("Coruptia ucide!\nMai incearca o data si salveaza Romania!\n\nClick sau ENTER pentru un joc nou");
 			ga('send', {
 			  hitType: 'event',
 			  eventCategory: 'Game',
@@ -466,10 +484,7 @@ function collisionHandler(alien, bullet) {
 
 function gameOverWin() {
     score.update(1000);
-
-    bullets.thief.callAll('kill', this);
-    bullets.psd.callAll('kill', this);
-    stateText.text = "Felicitari!\nAi invins coruptia si ai salvat Romania de PSD_isiti!\n\nClick pentru un joc nou";
+    stateText.text = "Felicitari!\nAi invins coruptia si ai salvat Romania de PSD_isiti!\n\nClick sau ENTER pentru un joc nou";
     stateText.visible = true;
 
     //the "click to restart" handler
@@ -508,7 +523,7 @@ function enemyHitsPlayer(player, bullet) {
 
     // When the player dies
     if (lives.countLiving() < 1) {
-        gameOverLoss("Coruptia sta in Firea PSD!\nMai incearca o data si salveaza \nRomania de ciuma rosie!\n\nClick pentru un joc nou");
+        gameOverLoss("Coruptia sta in Firea PSD!\nMai incearca o data si salveaza \nRomania de ciuma rosie!\n\nClick sau ENTER pentru un joc nou");
 		
 		ga('send', {
 		  hitType: 'event',
@@ -522,7 +537,6 @@ function enemyHitsPlayer(player, bullet) {
 
 function gameOverLoss(message) {
     player.kill();
-    bullets.thief.callAll('kill');
 
     stateText.text = message;
     stateText.visible = true;
@@ -584,6 +598,13 @@ function resetBullet(bullet) {
 }
 
 function restart() {
+	
+	if (bullets.initialized === true) {
+		resetBullets();
+	}
+	
+    initBullets();
+	
     //  A new level starts
     //resets the life count
     lives.callAll('revive');
@@ -617,7 +638,7 @@ function restart() {
 }
 
 function easyMode() {
-    gameOverLoss("In lupta cu coruptia, nu exista cale usoara!\n\nClick pentru un joc nou");
+    gameOverLoss("In lupta cu coruptia, nu exista cale usoara!\n\nClick sau ENTER pentru un joc nou");
 	ga('send', {
 	  hitType: 'event',
 	  eventCategory: 'Game',
@@ -627,5 +648,5 @@ function easyMode() {
 }
 
 function start() {
-    gameOverLoss("Drag_ne_ar fi sa salvam Romania de invazia PSD\n\nFoloseste sagetile stanga-dreapta, tastele spatiu si \"D\"\n\nClick pentru a incepe");
+    gameOverLoss("Drag_ne_ar fi sa salvam Romania de invazia PSD\n\nFoloseste sagetile stanga-dreapta, tastele spatiu si \"D\"\n\nClick sau ENTER pentru a incepe");
 }
