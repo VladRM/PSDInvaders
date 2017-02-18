@@ -484,7 +484,7 @@ function collisionHandler(alien, bullet) {
 
 function gameOverWin() {
     score.update(1000);
-    stateText.text = "Felicitari!\nAi invins coruptia si ai salvat Romania de PSD_isiti!\n\nClick sau ENTER pentru un joc nou";
+    stateText.text = "Felicitari!\nAi invins coruptia si ai salvat Romania de PSD_isti!\n\nClick sau ENTER pentru un joc nou";
     stateText.visible = true;
 
     //the "click to restart" handler
