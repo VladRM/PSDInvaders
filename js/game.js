@@ -25,7 +25,7 @@ function preload() {
     game.load.image('starfield', 'img/starfield.png');
     game.load.image('background', 'img/background2.png');
     game.load.image('bossPsd', 'img/6_1_personaj_joc_64px.png');
-    game.load.spritesheet('dragneaBoss', 'img/dragneaBoss.png', 182, 182);
+    game.load.spritesheet('olgutaBoss', 'img/olgutaBoss.png', 182, 182);
 }
 
 var player;
@@ -202,14 +202,14 @@ function create() {
     //  The scrolling starfield background
     starfield = game.add.tileSprite(0, 0, gameWidth, gameHeight, 'starfield');
 
-    dragneaBoss = game.add.sprite(0, 0, 'dragneaBoss');
-    dragneaBoss.exists = false;
-    dragneaBoss.anchor.setTo(0.5, 0.5);
+    olgutaBoss = game.add.sprite(0, 0, 'olgutaBoss');
+    olgutaBoss.exists = false;
+    olgutaBoss.anchor.setTo(0.5, 0.5);
     
-    dragneaBoss.hitpoints = 20;
-    dragneaBoss.fireInterval = 2700;
-    dragneaBoss.nextShot = game.time.now + dragneaBoss.fireInterval;
-    game.physics.enable(dragneaBoss, Phaser.Physics.ARCADE);
+    olgutaBoss.hitpoints = 20;
+    olgutaBoss.fireInterval = 2700;
+    olgutaBoss.nextShot = game.time.now + olgutaBoss.fireInterval;
+    game.physics.enable(olgutaBoss, Phaser.Physics.ARCADE);
 	
     initBullets();
     createDnaBombs();
@@ -330,10 +330,10 @@ function createBossPsd() {
         bossesPsd.y = 200;
         game.add.tween(bossesPsd).to({x: 550}, 2000, Phaser.Easing.Linear.None, true, 0, 200, true);
 
-        dragneaBoss.reset(200, 75);
-        dragneaBoss.animations.add('blink', [ 0, 1, 2 ], 2, true);
-        dragneaBoss.play('blink');
-        game.add.tween(dragneaBoss).to({x: 500}, 4000, Phaser.Easing.Linear.None, true, 0, 1000, true);
+        olgutaBoss.reset(200, 75);
+        olgutaBoss.animations.add('blink', [ 0, 1, 2 ], 2, true);
+        olgutaBoss.play('blink');
+        game.add.tween(olgutaBoss).to({x: 500}, 4000, Phaser.Easing.Linear.None, true, 0, 1000, true);
     }
     phase2 = true;
 }
@@ -370,7 +370,7 @@ function setupInvader(invader) {
 function descend() {
     if (phase2) {
         bossesPsd.y += 10;
-        dragneaBoss.y += 10;
+        olgutaBoss.y += 10;
     } else {
         aliens.y += 10;
     }
@@ -418,7 +418,7 @@ function update() {
 
         if (gameOver) return;
         // win condition
-        if (phase2 && bossesPsd.getFirstAlive() === null && !dragneaBoss.alive) {
+        if (phase2 && bossesPsd.getFirstAlive() === null && !olgutaBoss.alive) {
             gameOverWin();
         }
 
@@ -429,9 +429,9 @@ function update() {
             if (bossesPsd.getFirstAlive() && game.time.now > bossesPsd.nextShot) {
                 enemyFires(bossesPsd, bullets.psd, 3);
             }
-            if (dragneaBoss.alive && game.time.now > dragneaBoss.nextShot) {
-                dragneaBoss.nextShot = game.time.now + dragneaBoss.fireInterval;
-                shooterShoot(dragneaBoss, bullets.dragnea, 5);
+            if (olgutaBoss.alive && game.time.now > olgutaBoss.nextShot) {
+                olgutaBoss.nextShot = game.time.now + olgutaBoss.fireInterval;
+                shooterShoot(olgutaBoss, bullets.dragnea, 5);
             }
         }
 
@@ -442,10 +442,10 @@ function update() {
         //  Run collision
         game.physics.arcade.overlap(aliens, bullets.player, collisionHandler, null, this);
         game.physics.arcade.overlap(bossesPsd, bullets.player, collisionHandler, null, this);
-        game.physics.arcade.overlap(dragneaBoss, bullets.player, collisionHandler, null, this);
+        game.physics.arcade.overlap(olgutaBoss, bullets.player, collisionHandler, null, this);
         game.physics.arcade.overlap(aliens, bullets.bombs, collisionHandler, null, this);
         game.physics.arcade.overlap(bossesPsd, bullets.bombs, collisionHandler, null, this);
-        game.physics.arcade.overlap(dragneaBoss, bullets.bombs, collisionHandler, null, this);
+        game.physics.arcade.overlap(olgutaBoss, bullets.bombs, collisionHandler, null, this);
         game.physics.arcade.overlap(bullets.thief, player, enemyHitsPlayer, null, this);
         game.physics.arcade.overlap(bullets.psd, player, enemyHitsPlayer, null, this);
         game.physics.arcade.overlap(bullets.dragnea, player, enemyHitsPlayer, null, this);
@@ -612,8 +612,8 @@ function restart() {
     //  And brings the aliens back from the dead :)
     aliens.removeAll();
     bossesPsd.removeAll();
-    dragneaBoss.kill();
-    dragneaBoss.hitpoints = 20; // hack
+    olgutaBoss.kill();
+    olgutaBoss.hitpoints = 20; // hack
     createAliens();
 
     //revives the player
